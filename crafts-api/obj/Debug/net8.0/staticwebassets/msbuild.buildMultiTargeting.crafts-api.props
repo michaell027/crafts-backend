@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\crafts-api.props" />
+</Project>
