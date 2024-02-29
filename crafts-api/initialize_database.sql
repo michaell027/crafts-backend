@@ -1,3 +1,7 @@
+DROP USER IF EXISTS 'crafts_user'@'localhost';
+CREATE USER 'crafts_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'crafts_password';
+GRANT ALL PRIVILEGES ON `crafts`.* TO 'crafts_user'@'localhost';
+
 CREATE TABLE IF NOT EXISTS `users` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `username` varchar(255) NOT NULL,
@@ -19,3 +23,22 @@ INSERT INTO `users` (`username`, `password`, `email`, `created_at`, `updated_at`
 
 INSERT INTO `users` (`username`, `password`, `email`, `created_at`, `updated_at`) VALUES
     ('user123', 'userpass', 'user123@example.com', '2024-02-11 15:00:00', '2024-02-11 15:00:00');
+
+CREATE TABLE IF NOT EXISTS `categories` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name` varchar(255) NOT NULL,
+    `sk_name` varchar(255) NOT NULL,
+    PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+INSERT INTO `categories` (`name`, `sk_name`) VALUES
+    ('Woodworking', 'Drevárstvo');
+
+INSERT INTO `categories` (`name`, `sk_name`) VALUES
+    ('Knitting', 'Pletenie');
+
+INSERT INTO `categories` (`name`, `sk_name`) VALUES
+    ('Sewing', 'Šitie');
+
+INSERT INTO `categories` (`name`, `sk_name`) VALUES
+    ('Painting', 'Maľovanie');

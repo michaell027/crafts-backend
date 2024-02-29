@@ -9,7 +9,7 @@ public class User
     //password
     public string Password { get; set; } = null!;
     //email
-    public string Email { get; set; } = null!;
+    public string? Email { get; set; }
     //created_at
     public DateTime CreatedAt { get; set; }
     //updated_at
