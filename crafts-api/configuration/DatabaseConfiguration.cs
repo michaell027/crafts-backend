@@ -8,6 +8,6 @@ namespace crafts_api.configuration
 
         public DatabaseConfiguration(IConfiguration configuration) => _configuration = configuration;
 
-        public MySqlConnection GetConnection() => new MySqlConnection(_configuration.GetConnectionString("Default"));
+        public MySqlConnection GetConnection() => new MySqlConnection(_configuration.GetConnectionString("SQLCONNSTR"));
     }
 }
