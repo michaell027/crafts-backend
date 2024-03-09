@@ -13,6 +13,7 @@ obj/
 *. suo
 *.sdf
 *.opensdf
+*.vs
 
 # Rider
 .idea/
@@ -46,3 +47,5 @@ $RECYCLE.BIN/
 *.lnk
 
 crafts-api/obj/
+
+appsettings.Development.json
