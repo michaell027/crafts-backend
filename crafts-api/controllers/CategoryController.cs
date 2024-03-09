@@ -30,8 +30,8 @@ public class CategoryController: ControllerBase
             new Category { Id = 9, Name = "Candle" },
             new Category { Id = 10, Name = "Soap" }
         };
-        return categories;
-        // return _categoryService.GetAllCategories();
+        // return categories;
+        return _categoryService.GetAllCategories();
     }
     
 }
