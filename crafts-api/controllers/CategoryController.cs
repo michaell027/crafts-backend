@@ -1,4 +1,5 @@
-using crafts_api.models;
+using crafts_api.models.domain;
+using crafts_api.models.models;
 using crafts_api.services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,19 +20,19 @@ public class CategoryController: ControllerBase
     {
         var categories = new List<Category>()
         {
-            new Category { Id = 1, Name = "Woodworking" },
-            new Category { Id = 2, Name = "Metalworking" },
-            new Category { Id = 3, Name = "Leatherworking" },
-            new Category { Id = 4, Name = "Pottery" },
-            new Category { Id = 5, Name = "Glassworking" },
-            new Category { Id = 6, Name = "Textile" },
-            new Category { Id = 7, Name = "Jewelry" },
-            new Category { Id = 8, Name = "Paper" },
-            new Category { Id = 9, Name = "Candle" },
-            new Category { Id = 10, Name = "Soap" }
+            new Category { Id = 1, CategoryName = "Woodworking" },
+            new Category { Id = 2, CategoryName = "Metalworking" },
+            new Category { Id = 3, CategoryName = "Leatherworking" },
         };
         // return categories;
         return _categoryService.GetAllCategories();
+    }
+    
+    // CREATE CATEGORY
+    [HttpPost]
+    public Category CreateCategory(CategoryModel categoryModel)
+    {
+        return _categoryService.CreateCategory(categoryModel);
     }
     
 }

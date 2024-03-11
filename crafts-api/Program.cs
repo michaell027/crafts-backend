@@ -1,20 +1,23 @@
-using System.Text;
 using crafts_api.configuration;
+using crafts_api.context;
 using crafts_api.services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddSingleton<DatabaseConfiguration>(_ =>
-    new DatabaseConfiguration(builder.Configuration));
 
-builder.Services.AddSingleton<UserService>();
-builder.Services.AddSingleton<CategoryService>();
-builder.Services.AddSingleton<AuthService>();
+// builder.Services.AddSingleton<DatabaseConfiguration>(_ =>
+//     new DatabaseConfiguration(builder.Configuration));
+
+builder.Services.AddDbContext<DatabaseContext>(options =>
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:Default"]));
+
+// builder.Services.AddSingleton<UserService>();
+builder.Services.AddScoped<CategoryService>();
+// builder.Services.AddSingleton<AuthService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

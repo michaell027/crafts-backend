@@ -1,40 +1,37 @@
 using crafts_api.configuration;
-using crafts_api.models;
+using crafts_api.context;
+using crafts_api.models.domain;
 using MySqlConnector;
+using System.Collections.Generic;
+using crafts_api.models.models;
 
-namespace crafts_api.services;
-
-public class CategoryService
+namespace crafts_api.services
 {
-    private readonly DatabaseConfiguration _databaseConfiguration;
-    
-    public CategoryService(DatabaseConfiguration databaseConfiguration) =>
-        _databaseConfiguration = databaseConfiguration;
-    
-    // get all categories
-    public List<Category> GetAllCategories()
+    public class CategoryService
     {
-        using var connection = _databaseConfiguration.GetConnection();
-        connection.Open();
+        private readonly DatabaseContext _databaseContext;
 
-        using var command = new MySqlCommand("SELECT * FROM categories", connection);
-        using var reader = command.ExecuteReader();
-        
-        var categories = new List<Category>();
+        public CategoryService(DatabaseContext databaseContext) => _databaseContext = databaseContext;
 
-        while (reader.Read())
+        // get all categories
+        public List<Category> GetAllCategories()
         {
-            categories.Add(new Category
-            {
-                Id = reader.GetInt32("id"),
-                Name = reader.GetString("name"),
-                SkName = reader.GetString("sk_name")
-            });
+            return _databaseContext.Categories.ToList();
         }
-
-        connection.Close();
         
-        return categories;
+        // create category
+        public Category CreateCategory(CategoryModel categoryModel)
+        {
+            var category = new Category
+            {
+                PublicId = Guid.NewGuid(),
+                CategoryName = categoryModel.CategoryName,
+                SkName = categoryModel.SkName,
+                Description = categoryModel.Description
+            };
+            _databaseContext.Categories.Add(category);
+            _databaseContext.SaveChanges();
+            return category;
+        }
     }
-    
 }
