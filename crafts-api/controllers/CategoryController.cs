@@ -20,9 +20,9 @@ public class CategoryController: ControllerBase
     {
         var categories = new List<Category>()
         {
-            new Category { Id = 1, CategoryName = "Woodworking" },
-            new Category { Id = 2, CategoryName = "Metalworking" },
-            new Category { Id = 3, CategoryName = "Leatherworking" },
+            new Category { Id = 1, Name = "Woodworking" },
+            new Category { Id = 2, Name = "Metalworking" },
+            new Category { Id = 3, Name = "Leatherworking" },
         };
         // return categories;
         return _categoryService.GetAllCategories();

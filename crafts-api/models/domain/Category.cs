@@ -9,7 +9,7 @@ public class Category
     public Guid PublicId { get; set; }
     
     // name
-    public string CategoryName { get; set; }
+    public string Name { get; set; }
     
     // sk_name
     public string SkName { get; set; }

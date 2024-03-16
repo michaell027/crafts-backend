@@ -25,7 +25,7 @@ namespace crafts_api.services
             var category = new Category
             {
                 PublicId = Guid.NewGuid(),
-                CategoryName = categoryModel.CategoryName,
+                Name = categoryModel.Name,
                 SkName = categoryModel.SkName,
                 Description = categoryModel.Description
             };
