@@ -1,105 +1,75 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using crafts_api.configuration;
-using crafts_api.models;
-using Microsoft.IdentityModel.Tokens;
-using MySqlConnector;
+using crafts_api.context;
+using crafts_api.exceptions;
+using crafts_api.interfaces;
+using crafts_api.models.domain;
+using crafts_api.models.models;
+using crafts_api.Utils;
+using System.Net;
 
 namespace crafts_api.services;
 
-public class AuthService
+public class AuthService : IAuthService
 {
-    private readonly DatabaseConfiguration _databaseConfiguration;
+    private readonly DatabaseContext _databaseContext;
+    private readonly PasswordFunctions passwordFunctions;
 
-    private readonly IConfiguration _configuration;
-
-    public AuthService(DatabaseConfiguration databaseConfiguration, IConfiguration configuration)
+    public AuthService(DatabaseContext databaseContext)
     {
-        _databaseConfiguration = databaseConfiguration;
-        _configuration = configuration;
+        _databaseContext = databaseContext;
+        passwordFunctions = new PasswordFunctions();
     }
 
-    // register user
-    public void Register(User user)
+    public Task<User> Login(LoginRequest loginRequest)
     {
-        using var connection = _databaseConfiguration.GetConnection();
-        connection.Open();
-
-        using var command =
-            new MySqlCommand(
-                "INSERT INTO users (username, password, email, created_at, updated_at) VALUES (@username, @password, @email, @created_at, @updated_at)",
-                connection);
-        command.Parameters.AddWithValue("@username", user.Username);
-        command.Parameters.AddWithValue("@password", user.Password);
-        command.Parameters.AddWithValue("@email", user.Email);
-        command.Parameters.AddWithValue("@created_at", DateTime.Now);
-        command.Parameters.AddWithValue("@updated_at", DateTime.Now);
-        command.ExecuteNonQuery();
-
-        connection.Close();
+        throw new NotImplementedException();
     }
 
-    // login user
-    public User Login(LoginRequest loginRequest)
+    public async Task Register(RegisterRequest registerRequest)
     {
-        using var connection = _databaseConfiguration.GetConnection();
-        connection.Open();
-
-        using var command =
-            new MySqlCommand(
-                "SELECT * FROM users WHERE username = @credential OR email = @credential AND password = @password",
-                connection);
-        command.Parameters.AddWithValue("@credential", loginRequest.Credential);
-        command.Parameters.AddWithValue("@password", loginRequest.Password);
-
-        using var reader = command.ExecuteReader();
-
-        var loggedInUser = new User();
-
-        while (reader.Read())
+        Boolean emailExists = _databaseContext.Users.Any(user => user.Email == registerRequest.Email);
+        if (emailExists)
         {
-            loggedInUser = new User
+            throw new DefaultException
             {
-                Id = reader.GetInt32("id"),
-                Username = reader.GetString("username"),
-                Password = reader.GetString("password"),
-                Email = reader.GetString("email"),
-                CreatedAt = reader.GetDateTime("created_at"),
-                UpdatedAt = reader.GetDateTime("updated_at")
+                StatusCode = HttpStatusCode.BadRequest,
+                ErrorCode = 400,
+                Message = "Email already exists"
             };
         }
 
-        connection.Close();
-
-        return loggedInUser;
-    }
-
-    // create user token
-    public string CreateToken(User user)
-    {
-        List<Claim> claims = new List<Claim>
+        Boolean passwordsMatch = registerRequest.Password == registerRequest.PasswordConfirmation;
+        if (!passwordsMatch)
         {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email!),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            throw new DefaultException
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                ErrorCode = 400,
+                Message = "Passwords do not match"
+            };
+        }
+
+        User user = new User
+        {
+            PublicId = Guid.NewGuid(),
+            FirstName = registerRequest.FirstName,
+            LastName = registerRequest.LastName,
+            Password = passwordFunctions.HashPassword(registerRequest.Password),
+            Email = registerRequest.Email,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
         };
 
-        var key = _configuration["Jwt:Key"];
-        var keyBytes = Encoding.UTF8.GetBytes(key!);
-        var base64EncodedKey = Convert.ToBase64String(keyBytes);
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(base64EncodedKey));
-
-        var creds = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            _configuration["Jwt:Issuer"],
-            _configuration["Jwt:Audience"],
-            claims,
-            expires: DateTime.Now.AddMinutes(30),
-            signingCredentials: creds);
-        
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        await _databaseContext.Users.AddAsync(user);
+        await _databaseContext.SaveChangesAsync();
     }
 
+    public void TestError()
+    {
+        throw new DefaultException
+        {
+            StatusCode = HttpStatusCode.InternalServerError,
+            ErrorCode = 500,
+            Message = "Test error"
+        };
+    }
 }
