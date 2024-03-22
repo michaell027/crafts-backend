@@ -1,38 +1,60 @@
-using crafts_api.models.domain;
+using crafts_api.interfaces;
+using crafts_api.models.dto;
 using crafts_api.models.models;
-using crafts_api.services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 
 namespace crafts_api.controllers;
 
-[Route("api/[controller]")]
+/// <summary>
+/// Category controller
+/// </summary>
+[Microsoft.AspNetCore.Components.Route("api/[controller]")]
 [ApiController]
 public class CategoryController: ControllerBase
 {
-    private readonly CategoryService _categoryService;
+    private readonly ICategoryService _categoryService;
 
-    public CategoryController(CategoryService categoryService) =>
+    /// <summary>
+    /// CategoryController constructor
+    /// </summary>
+    /// <param name="categoryService"></param>
+    public CategoryController(ICategoryService categoryService) =>
         _categoryService = categoryService;
 
-    // GET CATEGORIES
-    [HttpGet]
-    public List<Category> GetCategories()
+    /// <summary>
+    /// Get all categories
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet ("categories")]
+    public IActionResult GetCategories()
     {
-        var categories = new List<Category>()
+        List<CategoryDto> categoryDtos = _categoryService.GetAllCategoriesAsync().Result.ToList();
+        
+        if (categoryDtos.Count == 0)
         {
-            new Category { Id = 1, Name = "Woodworking" },
-            new Category { Id = 2, Name = "Metalworking" },
-            new Category { Id = 3, Name = "Leatherworking" },
-        };
-        // return categories;
-        return _categoryService.GetAllCategories();
+            return NotFound();
+        }
+
+        return Ok(categoryDtos);
     }
     
-    // CREATE CATEGORY
-    [HttpPost]
-    public Category CreateCategory(CategoryModel categoryModel)
+    /// <summary>
+    /// Create a new category
+    /// </summary>
+    /// <param name="categoryModel"></param>
+    /// <returns></returns>
+    [HttpPost ("create-category")]
+    public IActionResult CreateCategory(CategoryModel categoryModel)
     {
-        return _categoryService.CreateCategory(categoryModel);
+        CategoryDto categoryDto = _categoryService.CreateCategoryAsync(categoryModel).Result;
+
+        if (categoryDto == null)
+        {
+            return BadRequest();
+        }
+
+        return Ok(categoryDto);
     }
     
 }
