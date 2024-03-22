@@ -1,37 +1,42 @@
-using crafts_api.configuration;
+
 using crafts_api.context;
+using crafts_api.interfaces;
 using crafts_api.models.domain;
-using MySqlConnector;
-using System.Collections.Generic;
+using crafts_api.models.dto;
 using crafts_api.models.models;
+using Microsoft.EntityFrameworkCore;
 
 namespace crafts_api.services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly DatabaseContext _databaseContext;
 
         public CategoryService(DatabaseContext databaseContext) => _databaseContext = databaseContext;
 
-        // get all categories
-        public List<Category> GetAllCategories()
-        {
-            return _databaseContext.Categories.ToList();
-        }
         
         // create category
-        public Category CreateCategory(CategoryModel categoryModel)
+        public async Task<CategoryDto> CreateCategoryAsync(CategoryModel categoryModel)
         {
             var category = new Category
             {
-                PublicId = Guid.NewGuid(),
                 Name = categoryModel.Name,
                 SkName = categoryModel.SkName,
-                Description = categoryModel.Description
             };
-            _databaseContext.Categories.Add(category);
-            _databaseContext.SaveChanges();
-            return category;
+            
+            await _databaseContext.Categories.AddAsync(category);
+            await _databaseContext.SaveChangesAsync();
+            return category.ToDto();
+        }
+
+        // get all categories
+        public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
+        {
+            return await _databaseContext.Categories
+                .AsNoTracking()
+                .OrderBy(category => category.Id)
+                .Select(category => category.ToDto())
+                .ToListAsync();
         }
     }
 }
