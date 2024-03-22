@@ -1,3 +1,4 @@
+using crafts_api.Entities.Models;
 using crafts_api.interfaces;
 using crafts_api.models.models;
 using Microsoft.AspNetCore.Mvc;
@@ -38,9 +39,10 @@ public class AuthController : ControllerBase
     /// <param name="loginRequest"></param>
     /// <returns></returns>
     [HttpPost("login")]
-    public IActionResult Login(LoginRequest loginRequest)
+    public async Task<IActionResult> Login(LoginRequest loginRequest)
     {
-        return Ok("not implemented");
+        LoggedUser loggedUser = await _authService.Login(loginRequest);
+        return Ok(loggedUser);
     }
 
     [HttpGet("test-error")]
