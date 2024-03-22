@@ -19,7 +19,8 @@ namespace crafts_api.utils
             new Claim(ClaimTypes.Name, userDto.FirstName!),
             new Claim(ClaimTypes.Surname, userDto.LastName!),
             new Claim(ClaimTypes.Email, userDto.Email!),
-            new Claim(ClaimTypes.NameIdentifier, userDto.PublicId.ToString())
+            new Claim(ClaimTypes.NameIdentifier, userDto.PublicId.ToString()),
+            new Claim(ClaimTypes.DateOfBirth, userDto.CreatedAt.ToString())
         };
 
             var key = _configuration["Jwt:Key"];
