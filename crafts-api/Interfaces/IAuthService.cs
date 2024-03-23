@@ -8,6 +8,7 @@ namespace crafts_api.interfaces
     {
         Task Register(RegisterRequest registerRequest);
         Task<LoggedUser> Login(LoginRequest loginRequest);
+        Task<string> RefreshToken(RefreshTokenRequest refreshTokenRequest);
         void TestError();
     }
 }

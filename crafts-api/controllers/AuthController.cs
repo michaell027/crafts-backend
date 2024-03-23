@@ -1,6 +1,7 @@
 using crafts_api.Entities.Models;
 using crafts_api.interfaces;
 using crafts_api.models.models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace crafts_api.controllers;
@@ -52,4 +53,11 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
+    [Authorize]
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken(RefreshTokenRequest refreshTokenRequest)
+    {
+        Console.WriteLine("Refresh token " + refreshTokenRequest.RefreshToken);
+        return Ok();
+    }
 }

@@ -6,17 +6,21 @@
         public int Id { get; set; }
         //public id
         public Guid PublicId { get; set; }
+        //identity_id
+        public string IdentityId { get; set; } = null!;
+        //username
+        public string Username { get; set; } = null!;
         //first_name
         public string FirstName { get; set; } = null!;
         //last_name
         public string LastName { get; set; } = null!;
-        //password
-        public string Password { get; set; } = null!;
         //email
         public string Email { get; set; } = null!;
         //created_at
         public DateTime CreatedAt { get; set; }
         //updated_at
         public DateTime UpdatedAt { get; set;}
+        //role
+        public string Role { get; set; } = null!;
     }
 }

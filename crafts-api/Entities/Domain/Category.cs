@@ -1,14 +1,16 @@
 using crafts_api.models.dto;
+using System.ComponentModel.DataAnnotations;
 
 namespace crafts_api.models.domain;
 
 public class Category
 {
     // id
+    [Key]
     public int Id { get; set; }
 
     // public id
-    public Guid PublicId { get; set; } = Guid.NewGuid();
+    public Guid PublicId { get; set; }
 
     // name
     public string Name { get; set; } = string.Empty;

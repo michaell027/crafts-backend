@@ -12,7 +12,7 @@ namespace crafts_api.Problems
         {
             _next = next;
             this.logger = logger;
-        }
+        }   
 
         public async Task InvokeAsync(HttpContext context)
         {
