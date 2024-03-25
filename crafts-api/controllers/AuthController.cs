@@ -27,10 +27,17 @@ public class AuthController : ControllerBase
     /// Register a new user
     /// </summary>
     /// <param name="registerRequest"></param>
-    [HttpPost("register")]
+    [HttpPost("register-user")]
     public async Task<IActionResult> UserRegister(RegisterUserRequest registerUserRequest)
     {
         await _authService.UserRegister(registerUserRequest);
+        return Ok();
+    }
+
+    [HttpPost("register-craftsman")]
+    public async Task<IActionResult> CraftsmanRegister(RegisterCraftsmanRequest registerCraftsmanRequest)
+    {
+        await _authService.CraftsmanRegister(registerCraftsmanRequest);
         return Ok();
     }
 

@@ -2,17 +2,18 @@
 
 namespace crafts_api.Entities.Domain
 {
-    public class Crafter
+    public class Service
     {
         // id
         public int Id { get; set; }
         // public id
         public Guid PublicId { get; set; }
-        // user
-        public Guid UserPublicId { get; set; }
-        public User User { get; set; } = null!;
+        // name
+        public string Name { get; set; }
+        // description
+        public string Description { get; set; }
         // category
         public Guid CategoryPublicId { get; set; }
-        public Category Category { get; set; } = null!;
+        public Category Category { get; set; }
     }
 }

@@ -30,6 +30,11 @@ public class AuthService : IAuthService
         _userManager = userManager;
     }
 
+    public Task CraftsmanRegister(RegisterCraftsmanRequest registerCraftsmanRequest)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<LoggedUser> Login(LoginRequest loginRequest)
     {
         var identityUser = await _userManager.FindByEmailAsync(loginRequest.Email);
