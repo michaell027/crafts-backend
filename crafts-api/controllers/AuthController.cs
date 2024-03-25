@@ -28,12 +28,11 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="registerRequest"></param>
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterUserRequest registerRequest, Role role)
+    public async Task<IActionResult> UserRegister(RegisterUserRequest registerUserRequest)
     {
-        await _authService.Register(registerRequest, role);
+        await _authService.UserRegister(registerUserRequest);
         return Ok();
     }
-
 
     /// <summary>
     /// Login a user and return a JWT token
@@ -45,13 +44,6 @@ public class AuthController : ControllerBase
     {
         LoggedUser loggedUser = await _authService.Login(loginRequest);
         return Ok(loggedUser);
-    }
-
-    [HttpGet("test-error")]
-    public IActionResult TestError()
-    {
-        _authService.TestError();
-        return Ok();
     }
 
     [Authorize]

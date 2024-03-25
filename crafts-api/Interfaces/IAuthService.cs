@@ -1,6 +1,5 @@
 ﻿using crafts_api.Entities.Enum;
 using crafts_api.Entities.Models;
-using crafts_api.models.domain;
 using crafts_api.models.models;
 
 namespace crafts_api.interfaces
@@ -9,7 +8,6 @@ namespace crafts_api.interfaces
     {
         Task<LoggedUser> Login(LoginRequest loginRequest);
         Task<string> RefreshToken(RefreshTokenRequest refreshTokenRequest);
-        void TestError();
-        Task Register(RegisterUserRequest registerRequest, Role role);
+        Task UserRegister(RegisterUserRequest registerRequest);
     }
 }

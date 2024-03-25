@@ -1,4 +1,5 @@
-﻿using crafts_api.Entities.Enum;
+﻿using crafts_api.Entities.Domain;
+using crafts_api.Entities.Enum;
 
 namespace crafts_api.models.domain
 {
@@ -24,5 +25,7 @@ namespace crafts_api.models.domain
         public DateTime UpdatedAt { get; set;}
         //role
         public Role Role { get; set; }
+        //user_profile
+        public UserProfile UserProfile { get; set; }
     }
 }

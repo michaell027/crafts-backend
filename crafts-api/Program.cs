@@ -127,10 +127,11 @@ app.UseMiddleware<CustomErrorMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {
-    
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<DatabaseContext>();
-    DbInitializer.Seed(context);
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+
+    await DbInitializer.Seed(context, userManager);
 }
 
 app.UseHttpsRedirection();

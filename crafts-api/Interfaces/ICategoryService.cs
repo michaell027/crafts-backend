@@ -6,6 +6,6 @@ namespace crafts_api.interfaces
     public interface ICategoryService
     {
         Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync();
-        Task<CategoryDto> CreateCategoryAsync(Category categoryModel);
+        Task<CategoryDto> CreateCategoryAsync(CategoryModel categoryModel);
     }
 }

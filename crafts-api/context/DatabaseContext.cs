@@ -15,6 +15,7 @@ public class DatabaseContext : IdentityDbContext
     public DbSet<User> Users { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Crafter> Crafters { get; set; }
+    public DbSet<UserProfile> UserProfiles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -46,6 +47,12 @@ public class DatabaseContext : IdentityDbContext
             entity.Property(e => e.UpdatedAt).IsRequired();
             entity.Property(e => e.Role).IsRequired().HasConversion<string>();
             entity.HasIndex(e => e.IdentityId).IsUnique();
+            entity.HasOne(e => e.UserProfile)
+                .WithOne(up => up.User)
+                .HasForeignKey<UserProfile>(up => up.UserPublicId)
+                .HasPrincipalKey<User>(u => u.PublicId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
@@ -78,6 +85,20 @@ public class DatabaseContext : IdentityDbContext
             .HasForeignKey(e => e.CategoryPublicId)
             .HasPrincipalKey(e => e.PublicId)
             .IsRequired();
+        });
+
+        modelBuilder.Entity<UserProfile>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.ProfilePicture).IsRequired();
+            entity.Property(e => e.Country).IsRequired();
+            entity.Property(e => e.City).IsRequired();
+            entity.Property(e => e.Address).IsRequired();
+            entity.Property(e => e.Street).IsRequired();
+            entity.Property(e => e.Number).IsRequired();
+            entity.Property(e => e.PostalCode).IsRequired();
+            entity.Property(e => e.PhoneNumber).IsRequired();
         });
     }
 }

@@ -44,7 +44,7 @@ public class CategoryController: ControllerBase
     /// <param name="categoryModel"></param>
     /// <returns></returns>
     [HttpPost ("create-category")]
-    public IActionResult CreateCategory(Category categoryModel)
+    public IActionResult CreateCategory(CategoryModel categoryModel)
     {
         CategoryDto categoryDto = _categoryService.CreateCategoryAsync(categoryModel).Result;
 

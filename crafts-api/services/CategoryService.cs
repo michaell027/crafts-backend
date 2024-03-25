@@ -16,7 +16,7 @@ namespace crafts_api.services
 
         
         // create category
-        public async Task<CategoryDto> CreateCategoryAsync(models.models.Category categoryModel)
+        public async Task<CategoryDto> CreateCategoryAsync(models.models.CategoryModel categoryModel)
         {
             var category = new models.domain.Category
             {

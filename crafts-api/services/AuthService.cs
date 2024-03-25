@@ -103,9 +103,8 @@ public class AuthService : IAuthService
     }
 
 
-    public async Task Register(RegisterUserRequest registerRequest, Role role)
+    public async Task UserRegister(RegisterUserRequest registerRequest)
     {
-        Console.WriteLine(role.ToString());
         if (!PasswordsMatch(registerRequest.Password, registerRequest.PasswordConfirmation))
         {
             throw new DefaultException
@@ -122,7 +121,19 @@ public class AuthService : IAuthService
             Email = registerRequest.Email
         };
 
-        User user = new User
+        var userProfile = new UserProfile
+        {
+            ProfilePicture = registerRequest.ProfilePicture,
+            Country = registerRequest.Country,
+            City = registerRequest.City,
+            Address = registerRequest.Address,
+            Street = registerRequest.Street,
+            Number = registerRequest.Number,
+            PostalCode = registerRequest.PostalCode,
+            PhoneNumber = registerRequest.PhoneNumber
+        };
+
+        var user = new User
         {
             PublicId = Guid.NewGuid(),
             IdentityId = identityUser.Id,
@@ -132,8 +143,10 @@ public class AuthService : IAuthService
             Email = registerRequest.Email,
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now,
-            Role = role
+            Role = Role.User,
+            UserProfile = userProfile
         };
+
 
         var result = await _userManager.CreateAsync(identityUser, registerRequest.Password);
 
@@ -150,16 +163,6 @@ public class AuthService : IAuthService
 
         await _databaseContext.Users.AddAsync(user);
         await _databaseContext.SaveChangesAsync();
-    }
-
-    public void TestError()
-    {
-        throw new DefaultException
-        {
-            StatusCode = HttpStatusCode.InternalServerError,
-            ErrorCode = 500,
-            Message = "Test error"
-        };
     }
 
     private Boolean EmailExists(string email)
