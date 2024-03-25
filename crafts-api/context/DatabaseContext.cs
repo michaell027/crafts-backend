@@ -44,7 +44,8 @@ public class DatabaseContext : IdentityDbContext
             entity.Property(e => e.Email).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
-            entity.Property(e => e.Role).IsRequired();
+            entity.Property(e => e.Role).IsRequired().HasConversion<string>();
+            entity.HasIndex(e => e.IdentityId).IsUnique();
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>

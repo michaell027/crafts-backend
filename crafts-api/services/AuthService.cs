@@ -1,5 +1,6 @@
 using crafts_api.context;
 using crafts_api.Entities.Domain;
+using crafts_api.Entities.Enum;
 using crafts_api.Entities.Models;
 using crafts_api.exceptions;
 using crafts_api.interfaces;
@@ -101,8 +102,10 @@ public class AuthService : IAuthService
         return null;
     }
 
-    public async Task Register(RegisterRequest registerRequest)
+
+    public async Task Register(RegisterUserRequest registerRequest, Role role)
     {
+        Console.WriteLine(role.ToString());
         if (!PasswordsMatch(registerRequest.Password, registerRequest.PasswordConfirmation))
         {
             throw new DefaultException
@@ -128,7 +131,8 @@ public class AuthService : IAuthService
             LastName = registerRequest.LastName,
             Email = registerRequest.Email,
             CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
+            UpdatedAt = DateTime.Now,
+            Role = role
         };
 
         var result = await _userManager.CreateAsync(identityUser, registerRequest.Password);

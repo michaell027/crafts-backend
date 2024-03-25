@@ -2,7 +2,7 @@
 
 namespace crafts_api.models.models
 {
-    public class RegisterRequest
+    public class RegisterUserRequest
     {
         public string Username { get; set; }
         public string FirstName { get; set; }

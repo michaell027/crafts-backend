@@ -1,8 +1,10 @@
 using crafts_api.context;
 using crafts_api.interfaces;
+using crafts_api.Interfaces;
 using crafts_api.models;
 using crafts_api.Problems;
 using crafts_api.services;
+using crafts_api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -16,12 +18,15 @@ var config = builder.Configuration;
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+builder.Services.AddHttpClient();
 builder.Services.AddDbContext<DatabaseContext>();
 
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 
 builder.Services.AddLogging();
  

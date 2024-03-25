@@ -1,3 +1,4 @@
+using crafts_api.Entities.Enum;
 using crafts_api.Entities.Models;
 using crafts_api.interfaces;
 using crafts_api.models.models;
@@ -27,9 +28,9 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="registerRequest"></param>
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest registerRequest)
+    public async Task<IActionResult> Register(RegisterUserRequest registerRequest, Role role)
     {
-        await _authService.Register(registerRequest);
+        await _authService.Register(registerRequest, role);
         return Ok();
     }
 

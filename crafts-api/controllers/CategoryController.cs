@@ -1,7 +1,6 @@
 using crafts_api.interfaces;
 using crafts_api.models.dto;
 using crafts_api.models.models;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 
 namespace crafts_api.controllers;
@@ -9,7 +8,7 @@ namespace crafts_api.controllers;
 /// <summary>
 /// Category controller
 /// </summary>
-[Microsoft.AspNetCore.Components.Route("api/[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class CategoryController: ControllerBase
 {
