@@ -1,5 +1,7 @@
-﻿using crafts_api.models.dto;
+﻿using Azure.Core;
+using crafts_api.models.dto;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -13,7 +15,7 @@ namespace crafts_api.utils
 
         public TokenFunctions(IConfiguration configuration) => _configuration = configuration;
 
-        public string CreateToken(UserDto userDto)
+        public string CreateToken(LoggedUserDto userDto)
         {
             IEnumerable<Claim> claims = new List<Claim>
         {
@@ -21,6 +23,7 @@ namespace crafts_api.utils
             new Claim(ClaimTypes.Surname, userDto.LastName!),
             new Claim(ClaimTypes.Email, userDto.Email!),
             new Claim(ClaimTypes.NameIdentifier, userDto.PublicId.ToString()),
+            new Claim(ClaimTypes.Role, userDto.Role.ToString())
         };
 
             var key = _configuration["Jwt:Key"];
@@ -82,6 +85,16 @@ namespace crafts_api.utils
                 throw new SecurityTokenException("Invalid token");
 
             return principal;
+        }
+
+        //get data from token
+        public string GetClaim(string token, string claimType)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+            var stringClaimValue = securityToken?.Claims.First(claim => claim.Type == claimType).Value;
+
+            return stringClaimValue;
         }
     }
 

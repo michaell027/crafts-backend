@@ -12,7 +12,7 @@ using crafts_api.context;
 namespace crafts_api.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240325125109_Initial")]
+    [Migration("20240326074925_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -221,7 +221,7 @@ namespace crafts_api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("crafts_api.Entities.Domain.Crafter", b =>
+            modelBuilder.Entity("crafts_api.Entities.Domain.Craftsman", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -229,22 +229,125 @@ namespace crafts_api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("CategoryPublicId")
-                        .HasColumnType("char(36)");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("IdentityId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<Guid>("PublicId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("UserPublicId")
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdentityId");
+
+                    b.ToTable("Crafters");
+                });
+
+            modelBuilder.Entity("crafts_api.Entities.Domain.CraftsmanProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("CraftsmanPublicId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ProfilePicture")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CraftsmanProfiles");
+                });
+
+            modelBuilder.Entity("crafts_api.Entities.Domain.CraftsmanService", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CraftsmanProfileCraftsmanPublicId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<Guid>("ServicePublicId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryPublicId");
+                    b.HasIndex("CraftsmanProfileCraftsmanPublicId");
 
-                    b.HasIndex("UserPublicId");
+                    b.HasIndex("ServicePublicId");
 
-                    b.ToTable("Crafters");
+                    b.ToTable("CraftsmanServices");
                 });
 
             modelBuilder.Entity("crafts_api.Entities.Domain.RefreshToken", b =>
@@ -271,6 +374,35 @@ namespace crafts_api.Migrations
                     b.HasIndex("UserIdentityId");
 
                     b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("crafts_api.Entities.Domain.Service", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CategoryPublicId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryPublicId");
+
+                    b.ToTable("Services");
                 });
 
             modelBuilder.Entity("crafts_api.Entities.Domain.UserProfile", b =>
@@ -448,25 +580,37 @@ namespace crafts_api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("crafts_api.Entities.Domain.Crafter", b =>
+            modelBuilder.Entity("crafts_api.Entities.Domain.CraftsmanProfile", b =>
                 {
-                    b.HasOne("crafts_api.models.domain.Category", "Category")
+                    b.HasOne("crafts_api.Entities.Domain.Craftsman", "Craftsman")
+                        .WithOne("CraftsmanProfile")
+                        .HasForeignKey("crafts_api.Entities.Domain.CraftsmanProfile", "CraftsmanPublicId")
+                        .HasPrincipalKey("crafts_api.Entities.Domain.Craftsman", "PublicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Craftsman");
+                });
+
+            modelBuilder.Entity("crafts_api.Entities.Domain.CraftsmanService", b =>
+                {
+                    b.HasOne("crafts_api.Entities.Domain.CraftsmanProfile", "CraftsmanProfile")
+                        .WithMany("CraftsmanServices")
+                        .HasForeignKey("CraftsmanProfileCraftsmanPublicId")
+                        .HasPrincipalKey("CraftsmanPublicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("crafts_api.Entities.Domain.Service", "Service")
                         .WithMany()
-                        .HasForeignKey("CategoryPublicId")
+                        .HasForeignKey("ServicePublicId")
                         .HasPrincipalKey("PublicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("crafts_api.models.domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserPublicId")
-                        .HasPrincipalKey("PublicId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("CraftsmanProfile");
 
-                    b.Navigation("Category");
-
-                    b.Navigation("User");
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("crafts_api.Entities.Domain.RefreshToken", b =>
@@ -481,6 +625,18 @@ namespace crafts_api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("crafts_api.Entities.Domain.Service", b =>
+                {
+                    b.HasOne("crafts_api.models.domain.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryPublicId")
+                        .HasPrincipalKey("PublicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("crafts_api.Entities.Domain.UserProfile", b =>
                 {
                     b.HasOne("crafts_api.models.domain.User", "User")
@@ -491,6 +647,17 @@ namespace crafts_api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("crafts_api.Entities.Domain.Craftsman", b =>
+                {
+                    b.Navigation("CraftsmanProfile")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("crafts_api.Entities.Domain.CraftsmanProfile", b =>
+                {
+                    b.Navigation("CraftsmanServices");
                 });
 
             modelBuilder.Entity("crafts_api.models.domain.User", b =>

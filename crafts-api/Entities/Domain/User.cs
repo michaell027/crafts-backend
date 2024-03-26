@@ -26,6 +26,6 @@ namespace crafts_api.models.domain
         //role
         public Role Role { get; set; }
         //user_profile
-        public UserProfile UserProfile { get; set; }
+        public virtual UserProfile UserProfile { get; set; }
     }
 }

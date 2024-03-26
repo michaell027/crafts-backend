@@ -13,10 +13,10 @@ public class Category
     public Guid PublicId { get; set; }
 
     // name
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     // sk_name
-    public string SkName { get; set; }
+    public required string SkName { get; set; }
 
     // to dto
     public CategoryDto ToDto() => new()

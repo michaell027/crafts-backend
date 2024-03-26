@@ -6,26 +6,26 @@
         public int Id { get; set; }
         // public id
         public Guid CraftsmanPublicId { get; set; }
-        public Craftsman Craftsman { get; set; }
+        public virtual Craftsman Craftsman { get; set; } = null!;
         // description
-        public string Bio { get; set; }
+        public string Bio { get; set; } = string.Empty;
         // phone_number
-        public string PhoneNumber { get; set; }
+        public required string PhoneNumber { get; set; }
         // address
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
         // city
-        public string City { get; set; }
+        public required string City { get; set; }
         // country
-        public string Country { get; set; }
+        public required string Country { get; set; }
         // street
-        public string Street { get; set; }
+        public required string Street { get; set; }
         // number
-        public string Number { get; set; }
+        public required string Number { get; set; }
         // postal_code
-        public string PostalCode { get; set; }
+        public required string PostalCode { get; set; }
         // profile_picture
-        public string ProfilePicture { get; set; }
+        public string ProfilePicture { get; set; } = string.Empty;
         // craftsman_services
-        public List<CraftsmanService> CraftsmanServices { get; set; }
+        public virtual List<CraftsmanService> CraftsmanServices { get; set; } = new List<CraftsmanService>();
     }
 }

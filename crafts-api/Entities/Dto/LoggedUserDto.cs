@@ -1,6 +1,8 @@
+using crafts_api.Entities.Enum;
+
 namespace crafts_api.models.dto;
 
-public class UserDto
+public class LoggedUserDto
 {
     public Guid PublicId { get; set; }
     public string UserName { get; set; }
@@ -8,4 +10,5 @@ public class UserDto
     public string LastName { get; set; }
     public string Email { get; set; }
     public DateTime CreatedAt { get; set; }
+    public Role Role { get; set; }
 }

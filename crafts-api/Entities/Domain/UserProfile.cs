@@ -8,7 +8,7 @@ namespace crafts_api.Entities.Domain
         public int Id { get; set; }
         // public id
         public Guid UserPublicId { get; set; }
-        public User User { get; set; }
+        public virtual User User { get; set; }
         // profile_picture
         public string ProfilePicture { get; set; }
         // country

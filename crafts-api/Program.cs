@@ -24,6 +24,7 @@ builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<ICraftersService, CraftersService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 

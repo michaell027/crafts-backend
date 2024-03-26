@@ -10,7 +10,7 @@ namespace crafts_api.Entities.Domain
         public DateTime Expires { get; set; }
         public string UserIdentityId { get; set; }
 
-        public User User { get; set; }
+        public virtual User User { get; set; }
     }
 }
 

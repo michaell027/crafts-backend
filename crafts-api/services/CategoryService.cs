@@ -1,9 +1,6 @@
-
 using crafts_api.context;
 using crafts_api.interfaces;
-using crafts_api.models.domain;
 using crafts_api.models.dto;
-using crafts_api.models.models;
 using Microsoft.EntityFrameworkCore;
 
 namespace crafts_api.services

@@ -6,11 +6,11 @@
         public int Id { get; set; }
         // public id
         public Guid CraftsmanProfileCraftsmanPublicId { get; set; }
-        public CraftsmanProfile CraftsmanProfile { get; set; }
+        public virtual CraftsmanProfile CraftsmanProfile { get; set; }
         // service_public_id
         public Guid ServicePublicId { get; set; }
         // service
-        public Service Service { get; set; }
+        public virtual Service Service { get; set; }
         // price
         public decimal Price { get; set; }
         // duration

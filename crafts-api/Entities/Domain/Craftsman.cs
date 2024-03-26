@@ -1,22 +1,23 @@
 ﻿using crafts_api.Entities.Enum;
-using crafts_api.models.domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace crafts_api.Entities.Domain
 {
     public class Craftsman
     {
         // id
+        [Key]
         public int Id { get; set; }
         // public id
         public Guid PublicId { get; set; }
         // identity_id
-        public string IdentityId { get; set; }
+        public required string IdentityId { get; set; }
         // first_name
-        public string FirstName { get; set; }
+        public required string FirstName { get; set; }
         // last_name
-        public string LastName { get; set; }
+        public required string LastName { get; set; }
         // email
-        public string Email { get; set; }
+        public required string Email { get; set; }
         // created_at
         public DateTime CreatedAt { get; set; }
         // updated_at
@@ -24,9 +25,9 @@ namespace crafts_api.Entities.Domain
         // role
         public Role Role { get; set; }
         // username
-        public string Username { get; set; }
+        public required string Username { get; set; }
         // craftsman_profile
-        public CraftsmanProfile CraftsmanProfile { get; set; }
+        public virtual required CraftsmanProfile CraftsmanProfile { get; set; }
         // craftsman_reviews
         // public List<CraftsmanReview> CraftsmanReviews { get; set; }
         // craftsman_ratings

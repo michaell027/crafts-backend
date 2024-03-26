@@ -89,6 +89,35 @@ namespace crafts_api.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Crafters",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PublicId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    IdentityId = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FirstName = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LastName = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Email = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Role = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Username = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Crafters", x => x.Id);
+                    table.UniqueConstraint("AK_Crafters_PublicId", x => x.PublicId);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -246,28 +275,65 @@ namespace crafts_api.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Crafters",
+                name: "Services",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     PublicId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UserPublicId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Description = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     CategoryPublicId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Crafters", x => x.Id);
+                    table.PrimaryKey("PK_Services", x => x.Id);
+                    table.UniqueConstraint("AK_Services_PublicId", x => x.PublicId);
                     table.ForeignKey(
-                        name: "FK_Crafters_Categories_CategoryPublicId",
+                        name: "FK_Services_Categories_CategoryPublicId",
                         column: x => x.CategoryPublicId,
                         principalTable: "Categories",
                         principalColumn: "PublicId",
                         onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "CraftsmanProfiles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CraftsmanPublicId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Bio = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    PhoneNumber = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Address = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    City = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Country = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Street = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Number = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    PostalCode = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ProfilePicture = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CraftsmanProfiles", x => x.Id);
+                    table.UniqueConstraint("AK_CraftsmanProfiles_CraftsmanPublicId", x => x.CraftsmanPublicId);
                     table.ForeignKey(
-                        name: "FK_Crafters_Users_UserPublicId",
-                        column: x => x.UserPublicId,
-                        principalTable: "Users",
+                        name: "FK_CraftsmanProfiles_Crafters_CraftsmanPublicId",
+                        column: x => x.CraftsmanPublicId,
+                        principalTable: "Crafters",
                         principalColumn: "PublicId",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -333,6 +399,35 @@ namespace crafts_api.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "CraftsmanServices",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CraftsmanProfileCraftsmanPublicId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ServicePublicId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    Duration = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CraftsmanServices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CraftsmanServices_CraftsmanProfiles_CraftsmanProfileCraftsma~",
+                        column: x => x.CraftsmanProfileCraftsmanPublicId,
+                        principalTable: "CraftsmanProfiles",
+                        principalColumn: "CraftsmanPublicId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CraftsmanServices_Services_ServicePublicId",
+                        column: x => x.ServicePublicId,
+                        principalTable: "Services",
+                        principalColumn: "PublicId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -371,19 +466,29 @@ namespace crafts_api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Crafters_CategoryPublicId",
+                name: "IX_Crafters_IdentityId",
                 table: "Crafters",
-                column: "CategoryPublicId");
+                column: "IdentityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Crafters_UserPublicId",
-                table: "Crafters",
-                column: "UserPublicId");
+                name: "IX_CraftsmanServices_CraftsmanProfileCraftsmanPublicId",
+                table: "CraftsmanServices",
+                column: "CraftsmanProfileCraftsmanPublicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CraftsmanServices_ServicePublicId",
+                table: "CraftsmanServices",
+                column: "ServicePublicId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_UserIdentityId",
                 table: "RefreshTokens",
                 column: "UserIdentityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Services_CategoryPublicId",
+                table: "Services",
+                column: "CategoryPublicId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserProfiles_UserPublicId",
@@ -417,7 +522,7 @@ namespace crafts_api.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Crafters");
+                name: "CraftsmanServices");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
@@ -432,10 +537,19 @@ namespace crafts_api.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "CraftsmanProfiles");
+
+            migrationBuilder.DropTable(
+                name: "Services");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Crafters");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }

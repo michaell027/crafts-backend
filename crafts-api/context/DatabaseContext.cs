@@ -24,6 +24,7 @@ public class DatabaseContext : IdentityDbContext
     {
         var connectionString = _configuration.GetConnectionString("Default");
         optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+        optionsBuilder.UseLazyLoadingProxies();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -52,7 +53,7 @@ public class DatabaseContext : IdentityDbContext
             entity.Property(e => e.Role).IsRequired().HasConversion<string>();
             entity.HasIndex(e => e.IdentityId).IsUnique();
             entity.HasOne(e => e.UserProfile)
-                .WithOne(up => up.User)
+            .WithOne(up => up.User)
                 .HasForeignKey<UserProfile>(up => up.UserPublicId)
                 .HasPrincipalKey<User>(u => u.PublicId)
                 .IsRequired()
@@ -86,7 +87,7 @@ public class DatabaseContext : IdentityDbContext
             entity.Property(e => e.UpdatedAt).IsRequired();
             entity.Property(e => e.Role).IsRequired().HasConversion<string>();
             entity.HasOne(e => e.CraftsmanProfile)
-                .WithOne(cp => cp.Craftsman)
+            .WithOne(cp => cp.Craftsman)
                 .HasForeignKey<CraftsmanProfile>(cp => cp.CraftsmanPublicId)
                 .HasPrincipalKey<Craftsman>(c => c.PublicId)
                 .IsRequired()
@@ -97,7 +98,7 @@ public class DatabaseContext : IdentityDbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.ProfilePicture).IsRequired();
+            entity.Property(e => e.ProfilePicture);
             entity.Property(e => e.Country).IsRequired();
             entity.Property(e => e.City).IsRequired();
             entity.Property(e => e.Address).IsRequired();
@@ -111,7 +112,7 @@ public class DatabaseContext : IdentityDbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.Bio).IsRequired();
+            entity.Property(e => e.Bio);
             entity.Property(e => e.PhoneNumber).IsRequired();
             entity.Property(e => e.Address).IsRequired();
             entity.Property(e => e.City).IsRequired();
@@ -119,7 +120,7 @@ public class DatabaseContext : IdentityDbContext
             entity.Property(e => e.Street).IsRequired();
             entity.Property(e => e.Number).IsRequired();
             entity.Property(e => e.PostalCode).IsRequired();
-            entity.Property(e => e.ProfilePicture).IsRequired();
+            entity.Property(e => e.ProfilePicture);
             entity.HasOne(e => e.Craftsman)
                 .WithOne(c => c.CraftsmanProfile)
                 .HasForeignKey<CraftsmanProfile>(cp => cp.CraftsmanPublicId)

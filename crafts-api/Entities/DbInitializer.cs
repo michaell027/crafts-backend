@@ -2,6 +2,7 @@
 using crafts_api.context;
 using crafts_api.Entities.Domain;
 using crafts_api.Entities.Enum;
+using crafts_api.Entities.Models;
 using crafts_api.models.domain;
 using crafts_api.models.models;
 using Microsoft.AspNetCore.Identity;
@@ -79,7 +80,73 @@ namespace crafts_api.models
                         transaction.Rollback();
                     }
                 }
+            }
 
+            if (!context.Crafters.Any())
+            {
+                var registerCraftsmanRequest = new RegisterCraftsmanRequest
+                {
+                    FirstName = "Jozef",
+                    LastName = "Jozefovic",
+                    Username = "jozef123",
+                    Email = "jozef123@post.sk",
+                    Password = "jozef123",
+                    PasswordConfirmation = "jozef123",
+                    Bio = "I am a craftsmen, I love to create things",
+                    PhoneNumber = "0901234567",
+                    City = "Bratislava",
+                    Country = "Slovakia",
+                    Number = "63",
+                    PostalCode = "84104",
+                    Street = "Karloveska"
+                };
+
+                var identityUser = new IdentityUser
+                {
+                    UserName = registerCraftsmanRequest.Username,
+                    Email = registerCraftsmanRequest.Email
+                };
+
+                var craftsmanProfile = new CraftsmanProfile
+                {
+                    Bio = registerCraftsmanRequest.Bio,
+                    PhoneNumber = registerCraftsmanRequest.PhoneNumber,
+                    City = registerCraftsmanRequest.City,
+                    Country = registerCraftsmanRequest.Country,
+                    Street = registerCraftsmanRequest.Street,
+                    Number = registerCraftsmanRequest.Number,
+                    PostalCode = registerCraftsmanRequest.PostalCode
+                };
+
+                var craftsman = new Craftsman
+                {
+                    PublicId = Guid.NewGuid(),
+                    IdentityId = identityUser.Id,
+                    Username = registerCraftsmanRequest.Username,
+                    FirstName = registerCraftsmanRequest.FirstName,
+                    LastName = registerCraftsmanRequest.LastName,
+                    Email = registerCraftsmanRequest.Email,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    Role = Role.Crafter,
+                    CraftsmanProfile = craftsmanProfile
+                };
+
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    var result = await userManager.CreateAsync(identityUser, registerCraftsmanRequest.Password);
+
+                    if (result.Succeeded)
+                    {
+                        await context.Crafters.AddAsync(craftsman);
+                        await context.SaveChangesAsync();
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        transaction.Rollback();
+                    }
+                }
             }
 
             if (!context.Categories.Any())

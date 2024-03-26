@@ -14,6 +14,6 @@ namespace crafts_api.Entities.Domain
         public string Description { get; set; }
         // category
         public Guid CategoryPublicId { get; set; }
-        public Category Category { get; set; }
+        public virtual Category Category { get; set; }
     }
 }
