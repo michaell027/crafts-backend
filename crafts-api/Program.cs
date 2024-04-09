@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using crafts_api;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -25,6 +26,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICraftersService, CraftersService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -41,7 +43,7 @@ builder.Services.AddSwaggerGen(options =>
         TermsOfService = new Uri("https://example.com/terms"),
         Contact = new OpenApiContact
         {
-            Name = "Michaela Majorošová",
+            Name = "Michaela Majoroï¿½ovï¿½",
             Email = "miselka12345@gmail.com"
         },
         License = new OpenApiLicense
@@ -124,16 +126,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<CustomErrorMiddleware>();
 
-
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<DatabaseContext>();
-    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-
-    await DbInitializer.Seed(context, userManager);
-}
+app.InitializeDatabase().GetAwaiter();
 
 app.UseHttpsRedirection();
 

@@ -17,6 +17,7 @@ namespace crafts_api.services
         {
             var category = new models.domain.Category
             {
+                PublicId = Guid.NewGuid(),
                 Name = categoryModel.Name,
                 SkName = categoryModel.SkName,
             };

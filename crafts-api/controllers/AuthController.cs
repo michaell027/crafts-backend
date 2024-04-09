@@ -1,4 +1,3 @@
-using crafts_api.Entities.Enum;
 using crafts_api.Entities.Models;
 using crafts_api.interfaces;
 using crafts_api.models.models;
@@ -53,11 +52,28 @@ public class AuthController : ControllerBase
         return Ok(loggedUser);
     }
 
-    [Authorize]
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(RefreshTokenRequest refreshTokenRequest)
     {
-        Console.WriteLine("Refresh token " + refreshTokenRequest.RefreshToken);
+        LoggedUser loggedUser = await _authService.RefreshToken(refreshTokenRequest);
+        return Ok(loggedUser);
+    }
+
+    [Authorize]
+    [HttpPost("update-user-profile")]
+    public async Task<IActionResult> UpdateUserProfile(UpdateUserProfileRequest updateProfileRequest)
+    {
+        var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        await _authService.UpdateUserProfile(updateProfileRequest, token);
+        return Ok();
+    }
+
+    [Authorize]
+    [HttpDelete("revoke")]
+    public async Task<IActionResult> Revoke()
+    {
+        var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        await _authService.Revoke(token);
         return Ok();
     }
 }

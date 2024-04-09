@@ -1,11 +1,11 @@
-﻿
-using crafts_api.context;
+﻿using crafts_api.context;
 using crafts_api.Entities.Domain;
 using crafts_api.Entities.Enum;
 using crafts_api.Entities.Models;
 using crafts_api.models.domain;
 using crafts_api.models.models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace crafts_api.models
 {
@@ -59,26 +59,24 @@ namespace crafts_api.models
                     FirstName = registerRequest.FirstName,
                     LastName = registerRequest.LastName,
                     Email = registerRequest.Email,
-                    CreatedAt = System.DateTime.Now,
-                    UpdatedAt = System.DateTime.Now,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
                     Role = Role.User,
                     UserProfile = userProfile
                 };
 
-                using (var transaction = context.Database.BeginTransaction())
-                {
-                    var result = await userManager.CreateAsync(identityUser, registerRequest.Password);
+                await using var transaction = await context.Database.BeginTransactionAsync();
 
-                    if (result.Succeeded)
-                    {
-                        await context.Users.AddAsync(user);
-                        await context.SaveChangesAsync();
-                        transaction.Commit();
-                    }
-                    else
-                    {
-                        transaction.Rollback();
-                    }
+                var result = await userManager.CreateAsync(identityUser, registerRequest.Password);
+                if (result.Succeeded)
+                {
+                    await context.Users.AddAsync(user);
+                    await context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
                 }
             }
 
@@ -131,91 +129,132 @@ namespace crafts_api.models
                     Role = Role.Crafter,
                     CraftsmanProfile = craftsmanProfile
                 };
-
-                using (var transaction = context.Database.BeginTransaction())
+                
+                var category = await context.Categories.FirstOrDefaultAsync( c => c.Name == "Woodworking");
+                
+                if (category == null)
                 {
-                    var result = await userManager.CreateAsync(identityUser, registerCraftsmanRequest.Password);
-
-                    if (result.Succeeded)
+                    category = new Category
                     {
-                        await context.Crafters.AddAsync(craftsman);
-                        await context.SaveChangesAsync();
-                        transaction.Commit();
-                    }
-                    else
-                    {
-                        transaction.Rollback();
-                    }
+                        PublicId = Guid.NewGuid(),
+                        Name = "Woodworking",
+                        SkName = "Drevo"
+                    };
+                    await context.Categories.AddAsync(category);
+                    await context.SaveChangesAsync();
                 }
+                
+                var addServiceRequest = new AddServiceRequest
+                {
+                    Name = "Woodworking",
+                    Description = "I am a craftsmen, I love to create things",
+                    Price = 20,
+                    Duration = 2,
+                    CategoryPublicId = category.PublicId
+                };
+                
+                var service = new Service
+                {
+                    PublicId = Guid.NewGuid(),
+                    Name = addServiceRequest.Name,
+                    Description = addServiceRequest.Description,
+                    CategoryPublicId = addServiceRequest.CategoryPublicId
+                };
+                
+                var craftsmanService = new CraftsmanService
+                {
+                    CraftsmanProfileCraftsmanPublicId = craftsman.PublicId,
+                    ServicePublicId = service.PublicId,
+                    Price = addServiceRequest.Price,
+                    Duration = addServiceRequest.Duration
+                };
+
+                await using var transaction = await context.Database.BeginTransactionAsync();
+
+                var result = await userManager.CreateAsync(identityUser, registerCraftsmanRequest.Password);
+
+                if (result.Succeeded)
+                {
+                    await context.Crafters.AddAsync(craftsman);
+                    await context.Services.AddAsync(service);
+                    await context.CraftsmanServices.AddAsync(craftsmanService);
+                    await context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                }
+
             }
 
             if (!context.Categories.Any())
             {
                 var categories = new List<Category>
                 {
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Woodworking",
                         SkName = "Drevo"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Knitting",
                         SkName = "Pletenie"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Sewing",
                         SkName = "Šitie"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Pottery",
                         SkName = "Keramika"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Painting",
                         SkName = "Maľovanie"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Jewelry",
                         SkName = "Šperky"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Glass",
                         SkName = "Sklo"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Metalworking",
                         SkName = "Kováčstvo"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Paper",
                         SkName = "Papier"
                     },
-                    new Category
+                    new ()
                     {
                         PublicId = Guid.NewGuid(),
                         Name = "Leather",
                         SkName = "Koža"
                     }
                 };
-                context.Categories.AddRange(categories);
-                context.SaveChanges();
+                await context.Categories.AddRangeAsync(categories);
+                await context.SaveChangesAsync();
             }
         }
     }

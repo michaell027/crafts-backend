@@ -16,7 +16,7 @@ namespace crafts_api.models.models
         public string ProfilePicture { get; set; }
         public string Country { get; set; }
         public string City { get; set; }
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
         public string Street { get; set; }
         public string Number { get; set; }
         public string PostalCode { get; set; }

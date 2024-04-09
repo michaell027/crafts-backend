@@ -4,7 +4,7 @@ using System.Net;
 
 namespace crafts_api.exceptions
 {
-    public class DefaultException : Exception, IEventSchedulerException
+    public class DefaultException : Exception
     {
         public HttpStatusCode? StatusCode { get; set; }
         public int ErrorCode { get; set; }

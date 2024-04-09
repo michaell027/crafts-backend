@@ -5,24 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace crafts_api.context;
 
-public class DatabaseContext : IdentityDbContext
+public class DatabaseContext (IConfiguration configuration) : IdentityDbContext
 {
-    private IConfiguration _configuration;
-
-    public DatabaseContext(IConfiguration configuration) => _configuration = configuration;
-
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
-    public DbSet<Craftsman> Crafters { get; set; }
-    public DbSet<UserProfile> UserProfiles { get; set; }
-    public DbSet<CraftsmanProfile> CraftsmanProfiles { get; set; }
-    public DbSet<CraftsmanService> CraftsmanServices { get; set; }
-    public DbSet<Service> Services { get; set; }
+    public DbSet<Category> Categories { get; init; } = null!;
+    public new DbSet<User> Users { get; init; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; init; } = null!;
+    public DbSet<Craftsman> Crafters { get; init; } = null!;
+    public DbSet<UserProfile> UserProfiles { get; init; } = null!;
+    public DbSet<CraftsmanProfile> CraftsmanProfiles { get; init; } = null!;
+    public DbSet<CraftsmanService> CraftsmanServices { get; init; } = null!;
+    public DbSet<Service> Services { get; init; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var connectionString = _configuration.GetConnectionString("Default");
+        var connectionString = configuration.GetConnectionString("Default");
         optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         optionsBuilder.UseLazyLoadingProxies();
     }
@@ -106,6 +102,12 @@ public class DatabaseContext : IdentityDbContext
             entity.Property(e => e.Number).IsRequired();
             entity.Property(e => e.PostalCode).IsRequired();
             entity.Property(e => e.PhoneNumber).IsRequired();
+            entity.HasOne(e => e.User)
+                .WithOne(u => u.UserProfile)
+                .HasForeignKey<UserProfile>(up => up.UserPublicId)
+                .HasPrincipalKey<User>(u => u.PublicId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<CraftsmanProfile>(entity =>
@@ -114,7 +116,7 @@ public class DatabaseContext : IdentityDbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.Bio);
             entity.Property(e => e.PhoneNumber).IsRequired();
-            entity.Property(e => e.Address).IsRequired();
+            entity.Property(e => e.Address);
             entity.Property(e => e.City).IsRequired();
             entity.Property(e => e.Country).IsRequired();
             entity.Property(e => e.Street).IsRequired();
@@ -144,7 +146,8 @@ public class DatabaseContext : IdentityDbContext
                 .WithMany()
                 .HasForeignKey(e => e.ServicePublicId)
                 .HasPrincipalKey(e => e.PublicId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Service>(entity =>

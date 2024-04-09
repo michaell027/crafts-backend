@@ -1,5 +1,4 @@
 ﻿using crafts_api.models.domain;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace crafts_api.Entities.Domain
 {

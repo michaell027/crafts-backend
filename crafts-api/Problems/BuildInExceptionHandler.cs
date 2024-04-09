@@ -1,5 +1,4 @@
-﻿using crafts_api.interfaces;
-using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json;
 using System.Net;
 
@@ -7,7 +6,7 @@ namespace crafts_api.Problems
 {
     public static class BuildInExceptionHandler
     {
-        public static void AddErrorHandler(this IApplicationBuilder app, ILogger<IEventSchedulerException> logger)
+        public static void AddErrorHandler(this IApplicationBuilder app, ILogger<CustomErrorMiddleware> logger)
         {
             app.UseExceptionHandler(appError =>
             {
@@ -20,25 +19,13 @@ namespace crafts_api.Problems
 
                     if (contextFeature != null)
                     {
-                        if (contextFeature.Error is IEventSchedulerException exception)
-                        {
-                            if (exception.StatusCode.HasValue)
-                            {
-                                context.Response.StatusCode = (int)exception.StatusCode.Value;
-                            }
-                            await context.Response.WriteAsync(exception.ToJson());
-                            logger?.LogError(exception.EventId, contextFeature.Error, exception.Message);
-                        }
-                        else
-                        {
                             await context.Response.WriteAsync(JsonConvert.SerializeObject(new
                             {
                                 StatusCode = context.Response.StatusCode,
-                                Message = "Internal Server Error."
+                                Message = contextFeature.Error.Message
                             }));
-                            logger?.LogError(new EventId(10, "Unknown Error"), contextFeature.Error, contextFeature.Error.Message);
+                            logger.LogError(new EventId(10, "Internal Server Error"), contextFeature.Error, contextFeature.Error.Message);
                         }
-                    }
                 });
             });
         }

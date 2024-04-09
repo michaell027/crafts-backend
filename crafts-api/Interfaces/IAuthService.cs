@@ -7,8 +7,11 @@ namespace crafts_api.interfaces
     public interface IAuthService
     {
         Task CraftsmanRegister(RegisterCraftsmanRequest registerCraftsmanRequest);
+        Task UserRegister(RegisterUserRequest registerRequest);        
         Task<LoggedUser> Login(LoginRequest loginRequest);
-        Task<string> RefreshToken(RefreshTokenRequest refreshTokenRequest);
-        Task UserRegister(RegisterUserRequest registerRequest);
+        Task<LoggedUser> RefreshToken(RefreshTokenRequest refreshTokenRequest);
+        Task UpdateUserProfile(UpdateUserProfileRequest updateProfileRequest, string token);
+        Task Revoke(string Token);
+
     }
 }

@@ -1,72 +1,74 @@
-﻿//using crafts_api.configuration;
-//using crafts_api.models;
-//using MySqlConnector;
+﻿using System.Net;
+using crafts_api.context;
+using crafts_api.Entities.Dto;
+using crafts_api.Entities.Enum;
+using crafts_api.Entities.Models;
+using crafts_api.exceptions;
+using crafts_api.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
-//namespace crafts_api.services;
+namespace crafts_api.services;
 
-//public class UserService
-//{
-//    private readonly DatabaseConfiguration _databaseConfiguration;
+public class UserService : IUserService
+{
+    private readonly DatabaseContext _databaseContext;
     
-//    public UserService(DatabaseConfiguration databaseConfiguration) =>
-//        _databaseConfiguration = databaseConfiguration;
+    public UserService(DatabaseContext databaseContext) => _databaseContext = databaseContext;
 
-//    // get all users
-//    public List<User> GetAllUsers()
-//    {
-//        using var connection = _databaseConfiguration.GetConnection();
-//        connection.Open();
+    public async Task<UserDto> GetUser(Guid publicId)
+    {
+        if (publicId == Guid.Empty)
+        {
+            throw new DefaultException
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                ErrorCode = 400,
+                Message = "User public id is required"
+            };
+        }
 
-//        using var command = new MySqlCommand("SELECT * FROM users", connection);
-//        using var reader = command.ExecuteReader();
+        var user = await _databaseContext.Users
+            .Include(x => x.UserProfile)
+            .FirstOrDefaultAsync(user => user.PublicId == publicId);
+
+        if (user == null)
+        {
+            throw new DefaultException
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                ErrorCode = 404,
+                Message = "User not found"
+            };
+        }
         
-//        var users = new List<User>();
+        if (user.Role != Role.User)
+        {
+            throw new DefaultException
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                ErrorCode = 400,
+                Message = "This is not a user"
+            };
+        }
 
-//        while (reader.Read())
-//        {
-//            users.Add(new User
-//            {
-//                Id = reader.GetInt32("id"),
-//                Username = reader.GetString("username"),
-//                Password = reader.GetString("password"),
-//                Email = reader.GetString("email"),
-//                CreatedAt = reader.GetDateTime("created_at"),
-//                UpdatedAt = reader.GetDateTime("updated_at")
-//            });
-//        }
-
-//        connection.Close();
-        
-//        return users;
-//    }
-    
-//    // get user by id
-//    public User GetUserById(int id)
-//    {
-//        using var connection = _databaseConfiguration.GetConnection();
-//        connection.Open();
-
-//        using var command = new MySqlCommand("SELECT * FROM users WHERE id = @id", connection);
-//        command.Parameters.AddWithValue("@id", id);
-//        using var reader = command.ExecuteReader();
-        
-//        var user = new User();
-
-//        while (reader.Read())
-//        {
-//            user = new User
-//            {
-//                Id = reader.GetInt32("id"),
-//                Username = reader.GetString("username"),
-//                Password = reader.GetString("password"),
-//                Email = reader.GetString("email"),
-//                CreatedAt = reader.GetDateTime("created_at"),
-//                UpdatedAt = reader.GetDateTime("updated_at")
-//            };
-//        }
-
-//        connection.Close();
-        
-//        return user;
-//    }
-//}
+        return new UserDto()
+        {
+            PublicId = user.PublicId,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Username = user.Username,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            Role = user.Role,
+            ProfilePicture = user.UserProfile.ProfilePicture,
+            Country = user.UserProfile.Country,
+            City = user.UserProfile.City,
+            Address = user.UserProfile.Address,
+            Street = user.UserProfile.Street,
+            Number = user.UserProfile.Number,
+            PostalCode = user.UserProfile.PostalCode,
+            PhoneNumber = user.UserProfile.PhoneNumber
+        };
+    }
+}

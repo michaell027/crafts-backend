@@ -1,5 +1,4 @@
-﻿using crafts_api.interfaces;
-using System.Net;
+﻿using System.Net;
 
 namespace crafts_api.Problems
 {
@@ -30,24 +29,12 @@ namespace crafts_api.Problems
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            if (error is IEventSchedulerException exception)
-            {
-                if (exception.StatusCode.HasValue)
-                {
-                    context.Response.StatusCode = (int)exception.StatusCode.Value;
-                }
-                await context.Response.WriteAsync(exception.ToJson());
-                logger.LogError(exception.EventId, error, exception.Message);
-            }
-            else
-            {
                 await context.Response.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
                     StatusCode = context.Response.StatusCode,
-                    Message = "Unknown Error."
+                    Message = context.Response.StatusCode == 500 ? "Internal Server Error" : error.Message
                 }));
                 logger.LogError(new EventId(10, "Unknown Error"), error, error.Message);
-            }
             
         }
     }
