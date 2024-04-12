@@ -5,5 +5,6 @@ namespace crafts_api.Interfaces;
 
 public interface IUserService
 {
-    public Task<UserDto> GetUser(Guid publicId);
+    public Task<UserDto> GetUser(Guid publicId, string token);
+    Task UpdateUserProfile(UpdateUserProfileRequest updateProfileRequest, string token);
 }

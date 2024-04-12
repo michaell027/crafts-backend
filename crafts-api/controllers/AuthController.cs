@@ -60,15 +60,6 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("update-user-profile")]
-    public async Task<IActionResult> UpdateUserProfile(UpdateUserProfileRequest updateProfileRequest)
-    {
-        var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        await _authService.UpdateUserProfile(updateProfileRequest, token);
-        return Ok();
-    }
-
-    [Authorize]
     [HttpDelete("revoke")]
     public async Task<IActionResult> Revoke()
     {

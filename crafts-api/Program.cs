@@ -21,7 +21,6 @@ var config = builder.Configuration;
 
 builder.Services.AddHttpClient();
 builder.Services.AddDbContext<DatabaseContext>();
-
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICountryService, CountryService>();

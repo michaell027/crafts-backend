@@ -7,5 +7,6 @@ namespace crafts_api.Interfaces
     {
         Task AddService(AddServiceRequest addServiceRequest, string token);
         Task<CraftsmanProfileViewDto> GetCraftsmanProfile(Guid craftsmanPublicId);
+        Task UpdateCraftsmanProfile(UpdateCraftsmanProfileRequest updateCraftsmanProfileRequest, string token);
     }
 }

@@ -1,7 +1,9 @@
 ﻿using crafts_api.Entities.Dto;
+using crafts_api.Entities.Models;
 using crafts_api.Interfaces;
 using crafts_api.models;
 using crafts_api.services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace crafts_api.controllers;
@@ -23,10 +25,22 @@ public class UserController : ControllerBase
 //    }
     
     // GET USER BY ID
+    [Authorize]
     [HttpGet("get-user")]
     public async Task<UserDto> GetUserById(Guid id)
     {
-        return await _userService.GetUser(id);
+        var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        return await _userService.GetUser(id, token);
+    }
+    
+    // UPDATE USER PROFILE
+    [Authorize]
+    [HttpPost("update-user-profile")]
+    public async Task<IActionResult> UpdateUserProfile(UpdateUserProfileRequest updateProfileRequest)
+    {
+        var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        await _userService.UpdateUserProfile(updateProfileRequest, token);
+        return Ok();
     }
 
 }

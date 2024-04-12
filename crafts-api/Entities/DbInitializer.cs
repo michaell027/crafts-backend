@@ -13,6 +13,75 @@ namespace crafts_api.models
     {
         public static async Task Seed(DatabaseContext context, UserManager<IdentityUser> userManager)
         {
+            if (!context.Categories.Any())
+            {
+                var categories = new List<Category>
+                {
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Woodworking",
+                        SkName = "Drevo"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Knitting",
+                        SkName = "Pletenie"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Sewing",
+                        SkName = "Šitie"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Pottery",
+                        SkName = "Keramika"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Painting",
+                        SkName = "Maľovanie"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Jewelry",
+                        SkName = "Šperky"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Glass",
+                        SkName = "Sklo"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Metalworking",
+                        SkName = "Kováčstvo"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Paper",
+                        SkName = "Papier"
+                    },
+                    new ()
+                    {
+                        PublicId = Guid.NewGuid(),
+                        Name = "Leather",
+                        SkName = "Koža"
+                    }
+                };
+                await context.Categories.AddRangeAsync(categories);
+                await context.SaveChangesAsync();
+            }
+            
             if (!context.Users.Any())
             {
                 var registerRequest = new RegisterUserRequest
@@ -186,75 +255,6 @@ namespace crafts_api.models
                     await transaction.RollbackAsync();
                 }
 
-            }
-
-            if (!context.Categories.Any())
-            {
-                var categories = new List<Category>
-                {
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Woodworking",
-                        SkName = "Drevo"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Knitting",
-                        SkName = "Pletenie"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Sewing",
-                        SkName = "Šitie"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Pottery",
-                        SkName = "Keramika"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Painting",
-                        SkName = "Maľovanie"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Jewelry",
-                        SkName = "Šperky"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Glass",
-                        SkName = "Sklo"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Metalworking",
-                        SkName = "Kováčstvo"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Paper",
-                        SkName = "Papier"
-                    },
-                    new ()
-                    {
-                        PublicId = Guid.NewGuid(),
-                        Name = "Leather",
-                        SkName = "Koža"
-                    }
-                };
-                await context.Categories.AddRangeAsync(categories);
-                await context.SaveChangesAsync();
             }
         }
     }

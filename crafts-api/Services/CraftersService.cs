@@ -11,20 +11,13 @@ using System.Net;
 
 namespace crafts_api.Services
 {
-    public class CraftersService : ICraftersService
+    public class CraftersService(IConfiguration configuration, DatabaseContext databaseContext) : ICraftersService
     {
-        private readonly TokenFunctions tokenFunctions;
-        private readonly DatabaseContext _databaseContext;
-
-        public CraftersService( IConfiguration configuration, DatabaseContext databaseContext)
-        {
-            tokenFunctions = new TokenFunctions(configuration);
-            _databaseContext = databaseContext;
-        }
+        private readonly TokenFunctions _tokenFunctions = new(configuration);
 
         public async Task AddService(AddServiceRequest addServiceRequest, string token)
         {
-            var craftsmanPublicId = tokenFunctions.GetClaim(token, "nameid");
+            var craftsmanPublicId = _tokenFunctions.GetClaim(token, "nameid");
 
             if (craftsmanPublicId == null)
             {
@@ -36,7 +29,7 @@ namespace crafts_api.Services
                 };
             }
 
-            var role = tokenFunctions.GetClaim(token, "role");
+            var role = _tokenFunctions.GetClaim(token, "role");
 
             if (role != Role.Crafter.ToString())
             {
@@ -64,9 +57,9 @@ namespace crafts_api.Services
                 Duration = addServiceRequest.Duration
             };
 
-            await _databaseContext.Services.AddAsync(service);
-            await _databaseContext.CraftsmanServices.AddAsync(craftsmanService);
-            await _databaseContext.SaveChangesAsync();
+            await databaseContext.Services.AddAsync(service);
+            await databaseContext.CraftsmanServices.AddAsync(craftsmanService);
+            await databaseContext.SaveChangesAsync();
         }
 
         public async Task<CraftsmanProfileViewDto> GetCraftsmanProfile(Guid craftsmanPublicId)
@@ -81,9 +74,11 @@ namespace crafts_api.Services
                 };
             }
 
-            var craftsman = await _databaseContext.Crafters
+            var craftsman = await databaseContext.Crafters
                 .Include(x => x.CraftsmanProfile)
                 .ThenInclude(x => x.CraftsmanServices)
+                .ThenInclude(cs => cs.Service)
+                .ThenInclude(s => s.Category)
                 .FirstOrDefaultAsync(x => x.PublicId == craftsmanPublicId);
 
             if (craftsman == null)
@@ -96,8 +91,7 @@ namespace crafts_api.Services
                 };
             }
 
-            List<CraftsmanServiceDto> craftsmanServiceDtos = craftsman.CraftsmanProfile.CraftsmanServices
-                .Where(x => x.Service != null)
+            var craftsmanServiceDtos = craftsman.CraftsmanProfile.CraftsmanServices
                 .Select(x => new CraftsmanServiceDto
                 {
                     ServicePublicId = x.Service.PublicId,
@@ -125,6 +119,11 @@ namespace crafts_api.Services
 
             return craftsmanProfileViewDto;
 
+        }
+        
+        public async Task UpdateCraftsmanProfile(UpdateCraftsmanProfileRequest updateCraftsmanProfileRequest, string token)
+        {
+            throw new NotImplementedException();
         }
     }
 }

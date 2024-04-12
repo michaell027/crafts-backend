@@ -10,18 +10,14 @@ using crafts_api.models.models;
 using crafts_api.utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
 using System.Net;
-using System.Reflection;
 using System.Security.Claims;
 
 namespace crafts_api.services;
 
 public class AuthService(DatabaseContext databaseContext, IConfiguration configuration, UserManager<IdentityUser> userManager) : IAuthService
 {
-    private readonly DatabaseContext _databaseContext = databaseContext;
-    private readonly TokenFunctions tokenFunctions = new(configuration);
-    private readonly UserManager<IdentityUser> _userManager = userManager;
+    private readonly TokenFunctions _tokenFunctions = new(configuration);
 
     public async Task CraftsmanRegister(RegisterCraftsmanRequest registerCraftsmanRequest)
     {
@@ -69,7 +65,7 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
             CraftsmanProfile = craftsmanProfile
         };
 
-        var result = await _userManager.CreateAsync(identityUser, registerCraftsmanRequest.Password);
+        var result = await userManager.CreateAsync(identityUser, registerCraftsmanRequest.Password);
 
         if (!result.Succeeded)
         {
@@ -81,8 +77,8 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
             };
         }
 
-        await _databaseContext.Crafters.AddAsync(craftsman);
-        await _databaseContext.SaveChangesAsync();
+        await databaseContext.Crafters.AddAsync(craftsman);
+        await databaseContext.SaveChangesAsync();
 
     }
     public async Task UserRegister(RegisterUserRequest registerRequest)
@@ -131,7 +127,7 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
         };
 
 
-        var result = await _userManager.CreateAsync(identityUser, registerRequest.Password);
+        var result = await userManager.CreateAsync(identityUser, registerRequest.Password);
 
 
         if (!result.Succeeded)
@@ -144,16 +140,16 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
             };
         }
 
-        await _databaseContext.Users.AddAsync(user);
-        await _databaseContext.SaveChangesAsync();
+        await databaseContext.Users.AddAsync(user);
+        await databaseContext.SaveChangesAsync();
     }
     public async Task<LoggedUser> Login(LoginRequest loginRequest)
     {
-        var identityUser = await _userManager.FindByEmailAsync(loginRequest.Email);
+        var identityUser = await userManager.FindByEmailAsync(loginRequest.Email);
         if (identityUser is null)
             throw CreateUserNotFoundException();
 
-        var result = await _userManager.CheckPasswordAsync(identityUser, loginRequest.Password);
+        var result = await userManager.CheckPasswordAsync(identityUser, loginRequest.Password);
         if (!result)
             throw CreateInvalidPasswordException();
 
@@ -167,16 +163,16 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
     }
     public async Task<LoggedUser> RefreshToken(RefreshTokenRequest refreshTokenRequest)
     {
-        var principal = tokenFunctions.GetPrincipalFromExpiredToken(refreshTokenRequest.Token);
+        var principal = _tokenFunctions.GetPrincipalFromExpiredToken(refreshTokenRequest.Token);
         
         if (principal is null)
             throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Invalid token" };
 
         var publicId = principal.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 
-        var user = await _databaseContext.Users.FirstOrDefaultAsync(user => user.PublicId.ToString() == publicId) ?? throw CreateUserNotFoundException();
+        var user = await databaseContext.Users.FirstOrDefaultAsync(user => user.PublicId.ToString() == publicId) ?? throw CreateUserNotFoundException();
 
-        var userRefreshToken = await _databaseContext.RefreshTokens.FirstOrDefaultAsync(token => token.UserIdentityId == user.IdentityId) ?? throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Token not found" };
+        var userRefreshToken = await databaseContext.RefreshTokens.FirstOrDefaultAsync(token => token.UserIdentityId == user.IdentityId) ?? throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Token not found" };
 
         if (userRefreshToken.Token != refreshTokenRequest.RefreshToken)
             throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Invalid token" };
@@ -184,7 +180,7 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
         if (userRefreshToken.Expires < DateTime.Now)
             throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Token expired" };
 
-        var token = tokenFunctions.CreateToken(new LoggedUserDto
+        var token = _tokenFunctions.CreateToken(new LoggedUserDto
         {
             PublicId = user.PublicId,
             FirstName = user.FirstName,
@@ -213,79 +209,16 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
 
         return loggedInUser;
     }
-    public async Task UpdateUserProfile(UpdateUserProfileRequest updateProfileRequest, string token)
+    public async Task Revoke(string token)
     {
-        var publicId = tokenFunctions.GetClaim(token, "nameid");
-        var role = tokenFunctions.GetClaim(token, "role");
+        var publicId = _tokenFunctions.GetClaim(token, "nameid") ?? throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Invalid token" };
 
-        if (publicId == null || role != Role.User.ToString())
-        {
-            throw new DefaultException
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                ErrorCode = 400,
-                Message = "Unauthorized"
-            };
-        }
+        var user = await databaseContext.Users.FirstOrDefaultAsync(user => user.PublicId.ToString() == publicId) ?? throw CreateUserNotFoundException();
 
-        var user = _databaseContext.Users.FirstOrDefault(user => user.PublicId.ToString() == publicId);
+        var userRefreshToken = await databaseContext.RefreshTokens.FirstOrDefaultAsync(t => t.UserIdentityId == user.IdentityId) ?? throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Token not found" };
 
-        if (user == null)
-        {
-            throw new DefaultException
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                ErrorCode = 400,
-                Message = "User not found"
-            };
-        }
-
-        if (updateProfileRequest.Email != user.Email && EmailExists(updateProfileRequest.Email))
-        {
-            throw new DefaultException
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                ErrorCode = 400,
-                Message = "Email already exists"
-            };
-        }
-
-        var identityUser = await _userManager.FindByIdAsync(user.IdentityId);
-
-        if (identityUser == null)
-        {
-            throw new DefaultException
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                ErrorCode = 400,
-                Message = "User not found"
-            };
-        }
-
-        if (updateProfileRequest.IsEmpty())
-        {
-            throw new DefaultException
-            {
-                StatusCode = HttpStatusCode.BadRequest,
-                ErrorCode = 400,
-                Message = "Nothing to update"
-            };
-        }
-
-        updateProfileRequest.UpdateUserFields(user, identityUser);
-        user.UpdatedAt = DateTime.Now;
-        await _databaseContext.SaveChangesAsync();
-    }
-    public async Task Revoke(string Token)
-    {
-        var publicId = tokenFunctions.GetClaim(Token, "nameid") ?? throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Invalid token" };
-
-        var user = await _databaseContext.Users.FirstOrDefaultAsync(user => user.PublicId.ToString() == publicId) ?? throw CreateUserNotFoundException();
-
-        var userRefreshToken = await _databaseContext.RefreshTokens.FirstOrDefaultAsync(token => token.UserIdentityId == user.IdentityId) ?? throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Token not found" };
-
-        _databaseContext.RefreshTokens.Remove(userRefreshToken);
-        await _databaseContext.SaveChangesAsync();
+        databaseContext.RefreshTokens.Remove(userRefreshToken);
+        await databaseContext.SaveChangesAsync();
     }
 
 
@@ -302,7 +235,7 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
         switch (role)
         {
             case Role.User:
-                var user = await _databaseContext.Users.FirstOrDefaultAsync(user => user.IdentityId == identityUser.Id) ?? throw CreateUserNotFoundException();
+                var user = await databaseContext.Users.FirstOrDefaultAsync(user => user.IdentityId == identityUser.Id) ?? throw CreateUserNotFoundException();
                 var userDto = new LoggedUserDto
                 {
                     PublicId = user.PublicId,
@@ -317,7 +250,7 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
                 await StoreRefreshToken(user.IdentityId, userRefreshToken);
                 return new LoggedUser { User = userDto, Token = userToken, RefreshToken = userRefreshToken };
             case Role.Crafter:
-                var craftsman = _databaseContext.Crafters.FirstOrDefault(craftsman => craftsman.IdentityId == identityUser.Id) ?? throw CreateUserNotFoundException();
+                var craftsman = databaseContext.Crafters.FirstOrDefault(craftsman => craftsman.IdentityId == identityUser.Id) ?? throw CreateUserNotFoundException();
                 var craftsmanDto = new LoggedUserDto
                 {
                     PublicId = craftsman.PublicId,
@@ -330,6 +263,8 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
                 };
                 var (craftsmanToken, craftsmanRefreshToken) = CreateTokens(craftsmanDto);
                 return new LoggedUser { User = craftsmanDto, Token = craftsmanToken, RefreshToken = craftsmanRefreshToken };
+            case Role.Admin:
+                throw new NotImplementedException();
             default:
                 throw new ArgumentException("Invalid role");
         }
@@ -343,78 +278,28 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
             UserIdentityId = identityId
         };
 
-        await _databaseContext.RefreshTokens.AddAsync(refreshToken);
-        await _databaseContext.SaveChangesAsync();
+        await databaseContext.RefreshTokens.AddAsync(refreshToken);
+        await databaseContext.SaveChangesAsync();
     }
     private (string, string) CreateTokens(LoggedUserDto userDto)
     {
-        string token = tokenFunctions.CreateToken(userDto);
-        string refreshTokenString = tokenFunctions.GenerateRefreshTokenAsync();
+        string token = _tokenFunctions.CreateToken(userDto);
+        string refreshTokenString = _tokenFunctions.GenerateRefreshTokenAsync();
         return (token, refreshTokenString);
     }
 
 
-
-
-
-    private Boolean EmailExists(string email)
-    {
-        return _databaseContext.Users.Any(user => user.Email == email);
-    }
-    private Boolean PasswordsMatch(string password, string passwordConfirmation)
+    private static bool PasswordsMatch(string password, string passwordConfirmation)
     {
         return password == passwordConfirmation;
     }
 
 
 
-    private DefaultException CreateUserNotFoundException() =>
-    new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "User not found" };
-    private DefaultException CreateInvalidPasswordException() =>
-    new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Invalid password" };
+    private static DefaultException CreateUserNotFoundException() =>
+    new() { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "User not found" };
+    private static DefaultException CreateInvalidPasswordException() =>
+    new() { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Invalid password" };
 
 
-}
-
-public static class UpdateUserProfileRequestExtensions
-{
-    public static bool IsEmpty(this UpdateUserProfileRequest updateProfileRequest)
-    {
-        return string.IsNullOrWhiteSpace(updateProfileRequest.Username) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.Email) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.FirstName) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.LastName) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.ProfilePicture) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.Country) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.City) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.Address) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.Street) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.Number) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.PostalCode) &&
-           string.IsNullOrWhiteSpace(updateProfileRequest.PhoneNumber);
-    }
-
-    public static void UpdateUserFields (this UpdateUserProfileRequest updateProfileRequest, User user, IdentityUser identityUser)
-    {
-        PropertyInfo[] properties = typeof(UpdateUserProfileRequest).GetProperties();
-
-        foreach (PropertyInfo property in properties)
-        {
-            string? value = property.GetValue(updateProfileRequest)?.ToString();
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                PropertyInfo? userProperty = typeof(User).GetProperty(property.Name);
-                if (userProperty != null)
-                {
-                    userProperty.SetValue(user, value);
-                }
-
-                PropertyInfo? identityUserProperty = typeof(IdentityUser).GetProperty(property.Name);
-                if (identityUserProperty != null)
-                {
-                    identityUserProperty.SetValue(identityUser, value);
-                }
-            }
-        }
-    }
 }
