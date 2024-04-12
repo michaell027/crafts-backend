@@ -183,16 +183,28 @@ public static class UpdateUserProfileRequestExtensions
                  var value = property.GetValue(updateProfileRequest)?.ToString() ?? string.Empty;
      
                  var userProperty = typeof(User).GetProperty(property.Name);
-                 if (userProperty != null)
+                 if (userProperty != null && !string.IsNullOrWhiteSpace(value))
                  {
                      userProperty.SetValue(user, value);
+                     
+                        if (property.Name == "Email")
+                        {
+                            identityUser.Email = value;
+                            identityUser.NormalizedEmail = value.ToUpper();
+                        }
+                        
+                        if (property.Name == "Username")
+                        {
+                            identityUser.UserName = value;
+                            identityUser.NormalizedUserName = value.ToUpper();
+                        }
                  }
      
-                 var identityUserProperty = typeof(IdentityUser).GetProperty(property.Name);
-                 if (identityUserProperty != null)
-                 {
-                     identityUserProperty.SetValue(identityUser, value);
-                 }
+                 // var identityUserProperty = typeof(IdentityUser).GetProperty(property.Name);
+                 // if (identityUserProperty != null && !string.IsNullOrWhiteSpace(value))
+                 // {
+                 //     identityUserProperty.SetValue(identityUser, value);
+                 // }
              }
          }
      }

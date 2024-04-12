@@ -78,7 +78,7 @@ namespace crafts_api.utils
                 ValidateActor = true,
                 ValidateIssuer = true,
                 ValidateAudience = true,
-                ValidateLifetime = true,
+                ValidateLifetime = false,
                 RequireExpirationTime = true,
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = _configuration["Jwt:Issuer"],
