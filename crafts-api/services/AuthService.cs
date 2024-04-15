@@ -271,6 +271,15 @@ public class AuthService(DatabaseContext databaseContext, IConfiguration configu
     }
     private async Task StoreRefreshToken(string identityId, string userRefreshToken)
     {
+        if (await databaseContext.RefreshTokens.AnyAsync(token => token.UserIdentityId == identityId))
+        {
+            var refreshTokenFromDb = await databaseContext.RefreshTokens.FirstOrDefaultAsync(token => token.UserIdentityId == identityId) ?? throw new DefaultException { StatusCode = HttpStatusCode.BadRequest, ErrorCode = 400, Message = "Token not found" };
+            refreshTokenFromDb.Token = userRefreshToken;
+            refreshTokenFromDb.Expires = DateTime.Now.AddDays(7);
+            await databaseContext.SaveChangesAsync();
+            return;
+        }
+        
         var refreshToken = new RefreshToken
         {
             Token = userRefreshToken,
