@@ -1,6 +1,4 @@
-﻿using crafts_api.models.domain;
-
-namespace crafts_api.Entities.Domain
+﻿namespace crafts_api.Entities.Domain
 {
     public class Service
     {

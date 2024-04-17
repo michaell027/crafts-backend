@@ -1,9 +1,8 @@
 ﻿using crafts_api.Entities.Domain;
 using crafts_api.Entities.Dto;
 using crafts_api.Entities.Enum;
-using crafts_api.Interfaces;
 
-namespace crafts_api.models.domain
+namespace crafts_api.Entities.Domain
 {
     public class User
     {

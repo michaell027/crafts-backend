@@ -1,7 +1,7 @@
 using crafts_api.models.dto;
 using System.ComponentModel.DataAnnotations;
 
-namespace crafts_api.models.domain;
+namespace crafts_api.Entities.Domain;
 
 public class Category
 {

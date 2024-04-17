@@ -1,5 +1,5 @@
 ﻿using crafts_api.context;
-using crafts_api.models;
+using crafts_api.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace crafts_api;

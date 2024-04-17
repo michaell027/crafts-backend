@@ -4,7 +4,6 @@ using crafts_api.Entities.Enum;
 using crafts_api.Entities.Models;
 using crafts_api.exceptions;
 using crafts_api.interfaces;
-using crafts_api.models.domain;
 using crafts_api.models.dto;
 using crafts_api.models.models;
 using crafts_api.utils;
