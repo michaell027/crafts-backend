@@ -33,5 +33,14 @@ namespace crafts_api.Controllers
             await _craftsmanService.AddService(addServiceRequest, token);
             return Ok();
         }
+        
+        [HttpPost("update-craftsman-profile")]
+        public async Task<IActionResult> UpdateCraftsmanProfile(UpdateCraftsmanProfileRequest updateCraftsmanProfileRequest)
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            await _craftsmanService.UpdateCraftsmanProfile(updateCraftsmanProfileRequest, token);
+            return Ok();
+        }
     }
 }
