@@ -9,11 +9,11 @@ using crafts_api.context;
 
 #nullable disable
 
-namespace crafts_api.Migrations
+namespace crafts_api.Migrations.MySqlMigrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240411130508_Initial")]
-    partial class Initial
+    [Migration("20240416130219_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
