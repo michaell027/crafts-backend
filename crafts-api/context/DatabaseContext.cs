@@ -1,12 +1,19 @@
 using crafts_api.Entities.Domain;
-using crafts_api.models.domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace crafts_api.context;
 
-public class DatabaseContext (IConfiguration configuration) : IdentityDbContext
+// dotnet ef migrations add MigrationName --context DatabaseContext --output-dir Migrations/MySqlMigrations
+// dotnet ef database update --context DatabaseContext
+
+public class DatabaseContext(IConfiguration configuration) : IdentityDbContext
 {
+    
+    // public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+    // {
+    // }
+    
     public DbSet<Category> Categories { get; init; } = null!;
     public new DbSet<User> Users { get; init; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; init; } = null!;
