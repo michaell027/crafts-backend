@@ -1,4 +1,5 @@
-﻿using crafts_api.models.dto;
+﻿
+using crafts_api.Entities.Dto;
 
 namespace crafts_api.Entities.Models
 {

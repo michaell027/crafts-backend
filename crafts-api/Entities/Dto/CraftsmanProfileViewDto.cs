@@ -1,6 +1,4 @@
-﻿using crafts_api.Entities.Domain;
-
-namespace crafts_api.Entities.Dto
+﻿namespace crafts_api.Entities.Dto
 {
     public class CraftsmanProfileViewDto
     {

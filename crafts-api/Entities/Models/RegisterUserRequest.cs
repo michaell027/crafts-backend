@@ -1,6 +1,5 @@
-﻿using crafts_api.Entities.Enum;
-
-namespace crafts_api.models.models
+﻿
+namespace crafts_api.Entities.Models
 {
     public class RegisterUserRequest
     {

@@ -1,11 +1,11 @@
 ﻿using crafts_api.exceptions;
-using crafts_api.models.dto;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using crafts_api.Entities.Dto;
 
 namespace crafts_api.utils
 {

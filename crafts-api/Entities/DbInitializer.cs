@@ -2,7 +2,6 @@
 using crafts_api.Entities.Domain;
 using crafts_api.Entities.Enum;
 using crafts_api.Entities.Models;
-using crafts_api.models.models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

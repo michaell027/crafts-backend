@@ -1,5 +1,5 @@
-using crafts_api.models.dto;
 using System.ComponentModel.DataAnnotations;
+using crafts_api.Entities.Dto;
 
 namespace crafts_api.Entities.Domain;
 

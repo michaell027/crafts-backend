@@ -1,6 +1,4 @@
-﻿using crafts_api.Entities.Enum;
-using crafts_api.Entities.Models;
-using crafts_api.models.models;
+﻿using crafts_api.Entities.Models;
 
 namespace crafts_api.interfaces
 {

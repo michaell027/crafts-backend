@@ -1,5 +1,5 @@
-﻿using crafts_api.models.dto;
-using crafts_api.models.models;
+﻿using crafts_api.Entities.Dto;
+using crafts_api.Entities.Models;
 
 namespace crafts_api.interfaces
 {
