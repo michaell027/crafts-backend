@@ -1,7 +1,6 @@
 using crafts_api.context;
 using crafts_api.interfaces;
 using crafts_api.Interfaces;
-using crafts_api.models;
 using crafts_api.Problems;
 using crafts_api.services;
 using crafts_api.Services;
@@ -9,7 +8,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Text;
 using crafts_api;
 
@@ -20,7 +18,38 @@ var config = builder.Configuration;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddHttpClient();
-builder.Services.AddDbContext<DatabaseContext>();
+// multiple database contexts
+var environment = builder.Environment;
+
+if (environment.IsDevelopment())
+{
+    builder.Services.AddDbContext<SqlDatabaseContext>();
+    builder.Services.AddScoped<DatabaseContext, SqlDatabaseContext>();
+}
+else
+{
+    builder.Services.AddDbContext<DatabaseContext>();
+}
+
+// builder.Services.AddDbContext<DatabaseContext>((provider, options) =>
+// {
+//     var webHostEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
+//     var isDevelopment = webHostEnvironment.IsDevelopment();
+//     
+//     var connectionString = config.GetConnectionString("Default");
+//     
+//     if (isDevelopment)
+//     {
+//         options.UseSqlServer(connectionString);
+//         options.UseLazyLoadingProxies();
+//     }
+//     else
+//     {
+//         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+//         options.UseLazyLoadingProxies();
+//     }
+// });
+
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
@@ -51,8 +80,8 @@ builder.Services.AddSwaggerGen(options =>
             Url = new Uri("https://example.com/license")
         }
     });
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
-    options.IncludeXmlComments(xmlPath);
+    // var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+    // options.IncludeXmlComments(xmlPath);
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -106,12 +135,14 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = config["Jwt:Issuer"],
         ValidAudience = config["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!)),
         ClockSkew = TimeSpan.Zero
     };
 });
 
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -120,7 +151,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     
     app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
+    
+    using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()!.CreateScope())
+    {
+        var context = serviceScope.ServiceProvider.GetRequiredService<SqlDatabaseContext>();
+        context.Database.EnsureCreated();
+    }
 }
 
 app.UseMiddleware<CustomErrorMiddleware>();
