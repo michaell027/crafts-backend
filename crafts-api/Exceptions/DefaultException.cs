@@ -8,7 +8,7 @@ namespace crafts_api.exceptions
     {
         public HttpStatusCode? StatusCode { get; set; }
         public int ErrorCode { get; set; }
-        public string Message { get; set; }
+        public new string Message { get; set; }
 
         public EventId EventId => new EventId(100, "CustomError");
 

@@ -1,7 +1,8 @@
 using crafts_api.context;
 using crafts_api.Entities.Domain;
+using crafts_api.Entities.Dto;
+using crafts_api.Entities.Models;
 using crafts_api.interfaces;
-using crafts_api.models.dto;
 using Microsoft.EntityFrameworkCore;
 
 namespace crafts_api.services
@@ -14,7 +15,7 @@ namespace crafts_api.services
 
         
         // create category
-        public async Task<CategoryDto> CreateCategoryAsync(models.models.CategoryModel categoryModel)
+        public async Task<CategoryDto> CreateCategoryAsync(CategoryModel categoryModel)
         {
             var category = new Category
             {

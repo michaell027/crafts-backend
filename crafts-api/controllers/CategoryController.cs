@@ -1,6 +1,6 @@
 using crafts_api.interfaces;
-using crafts_api.models.dto;
-using crafts_api.models.models;
+using crafts_api.Entities.Dto;
+using crafts_api.Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace crafts_api.controllers;

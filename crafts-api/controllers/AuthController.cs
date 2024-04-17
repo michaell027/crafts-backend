@@ -1,6 +1,5 @@
 using crafts_api.Entities.Models;
 using crafts_api.interfaces;
-using crafts_api.models.models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
